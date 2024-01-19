@@ -2,12 +2,6 @@ var express = require('express');
 var router = express.Router();
 var { User, Token } = require('./../db');
 
-router.use('/user', async function ({ userId }, res) {
-    const user = await User.findById(userId);
-
-    res.send(user);
-});
-
 router.post('/login', async function (req, res) {
     const loginData = req.body;
 
@@ -37,7 +31,6 @@ router.post('/login', async function (req, res) {
 
 router.delete('/logout', async function ({ headers: { token } }, res) {
     await Token.findOneAndDelete({ token });
-
     res.end();
 });
 
@@ -73,3 +66,5 @@ router.post('/signup', async function (req, res) {
 
     res.end(token);
 });
+
+module.exports = router;

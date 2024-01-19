@@ -1,47 +1,48 @@
 var createError = require('http-errors');
 var express = require('express');
-var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
+var { Token } = require("./db");
+
 var usersRouter = require('./routes/users');
 var tasksRouter = require('./routes/tasks');
 var authRouter = require('./routes/auth');
 
 var app = express();
 
-app.use(logger('dev'));
+// app.use(logger('dev'));
+
+// Treats HTTP request body as a JSON
 app.use(express.json());
+
+// Performs URL encoding/decoding
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/task', tasksRouter);
-app.use('/auth', authRouter);
-
-app.use(async (req, _res, next) => {
-    const {
-        headers: { token },
-    } = req;
-
-    const tokenBody = await Token.findOne({ token });
-
-    if (tokenBody) {
-        const { userId } = tokenBody;
-
-        req.userId = userId;
-    }
+app.use((req, res, next) => {
+    console.log(`Url: ${req.path}`);
+    console.log(`HTTP method: ${req.method}`);
+    console.log("HTTP BOdy:", req.body);
+    console.log("Cookies:", req.cookies);
 
     next();
 });
 
-// app.use('/user', async ({ userId }, res) => {
-//     const user = await User.findById(userId);
+app.use(async (req, res, next) => {
+    const {
+        cookies: { token },
+    } = req;
 
-//     res.send(user);
-// });
+    const tokenBody = token && await Token.findOne({ token });
+    req.userId = tokenBody?.userId;
+
+    next();
+});
+
+app.use('/users', usersRouter);
+app.use('/tasks', tasksRouter);
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
