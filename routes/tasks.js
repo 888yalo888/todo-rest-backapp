@@ -19,7 +19,7 @@ router.post('/', async function ({ userId, body: newTaskData }, res) {
 
 /* DELETE task listing. */
 
-router.delete('/;id', async function ({ userId, params: { id } }, res) {
+router.delete('/:id', async function ({ userId, params: { id } }, res) {
     await Task.findOneAndDelete({ _id: id, userId });
 
     res.end();

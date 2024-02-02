@@ -3,6 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cors = require('cors');
+
+var { Token } = require('./db');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -13,15 +16,11 @@ var app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/task', tasksRouter);
-app.use('/auth', authRouter);
-
-app.use(async (req, _res, next) => {
+app.use(async (req, res, next) => {
     const {
         headers: { token },
     } = req;
@@ -37,11 +36,10 @@ app.use(async (req, _res, next) => {
     next();
 });
 
-// app.use('/user', async ({ userId }, res) => {
-//     const user = await User.findById(userId);
-
-//     res.send(user);
-// });
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/tasks', tasksRouter);
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -73,3 +73,5 @@ router.post('/signup', async function (req, res) {
 
     res.end(token);
 });
+
+module.exports = router;
